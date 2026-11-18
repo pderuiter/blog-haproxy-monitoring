@@ -1,0 +1,26 @@
+---
+- name: Install the demo backend script
+  ansible.builtin.copy:
+    src: demo-backend.py
+    dest: /usr/local/lib/demo-backend.py
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart demo backends
+
+- name: Install the demo backend unit
+  ansible.builtin.template:
+    src: demo-backend@.service.j2
+    dest: /etc/systemd/system/demo-backend@.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart demo backends
+
+- name: Enable and start the demo backends
+  ansible.builtin.systemd_service:
+    name: demo-backend@{{ item }}
+    enabled: true
+    state: started
+    daemon_reload: true
+  loop: "{{ demo_backend_ports }}"

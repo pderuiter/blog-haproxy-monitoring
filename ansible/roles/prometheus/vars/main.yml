@@ -1,0 +1,3 @@
+---
+_prometheus_name: "prometheus-{{ prometheus_version }}.linux-{{ prometheus_arch }}"
+_prometheus_base_url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}"

@@ -1,0 +1,9 @@
+---
+# HAProxy branch from the official repositories. 3.3 is the newest branch the
+# vbernat PPA builds for Ubuntu 24.04 (short-lived, until about Q1 2027); set
+# "3.2" for an LTS branch on 24.04, or "3.4" (LTS) on Ubuntu 26.04 / Debian 13.
+haproxy_install_version: "3.3"
+
+# Signing key of the vbernat PPAs (Ubuntu) and of haproxy.debian.net (Debian)
+haproxy_install_ppa_key_url: "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3D653970FBAB0A890E4E4E9A0F14D8B0CF4EFE96"
+haproxy_install_debian_key_url: "https://haproxy.debian.net/haproxy-archive-keyring.gpg"

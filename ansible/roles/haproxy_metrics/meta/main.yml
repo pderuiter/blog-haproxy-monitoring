@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: haproxy_metrics
+  namespace: pderuiter
+  author: Patrick de Ruiter
+  description: HAProxy configuration with the built-in Prometheus exporter on :8405 and a stats page, as in the blog post
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+    - name: Debian
+      versions:
+        - trixie
+  galaxy_tags:
+    - haproxy
+    - prometheus
+    - monitoring
+
+dependencies: []

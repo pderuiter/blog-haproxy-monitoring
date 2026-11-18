@@ -1,0 +1,15 @@
+---
+- name: HAProxy with the built-in Prometheus exporter
+  hosts: haproxy
+  gather_facts: true
+  roles:
+    - role: haproxy_install
+    - role: demo_backend
+      when: demo_backend_enabled | bool
+    - role: haproxy_metrics
+
+- name: Prometheus scraping HAProxy, with the post's alerting and recording rules
+  hosts: prometheus
+  gather_facts: true
+  roles:
+    - role: prometheus

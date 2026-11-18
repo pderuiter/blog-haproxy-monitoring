@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+# DEMO ONLY: see roles/demo_backend
+[Unit]
+Description=Demo HTTP backend on port %i
+After=network.target
+
+[Service]
+DynamicUser=true
+ExecStart=/usr/bin/python3 /usr/local/lib/demo-backend.py {{ demo_backend_bind }} %i
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

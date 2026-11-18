@@ -1,0 +1,22 @@
+---
+# HAProxy branch from the official repositories (see roles/haproxy_install)
+haproxy_install_version: "3.3"
+
+# DEMO: two local HTTP servers on each HAProxy host stand in for the post's
+# web1..web3 (192.168.1.10-12). Set demo_backend_enabled: false and list your
+# own servers here for a real setup.
+demo_backend_enabled: true
+haproxy_metrics_backend_servers:
+  - name: web1
+    address: 127.0.0.1
+    port: 8081
+  - name: web2
+    address: 127.0.0.1
+    port: 8082
+
+# The post points Prometheus at an Alertmanager on alertmanager:9093. This repo
+# does not install one; set your Alertmanager here, or [] to leave it out.
+prometheus_alertmanagers:
+  - alertmanager:9093
+
+prometheus_version: "3.16.0"

@@ -1,0 +1,7 @@
+---
+# DEMO ONLY: tiny HTTP servers so web_servers has live servers and the
+# server metrics have data. Replace them with your real web servers.
+demo_backend_ports:
+  - 8081
+  - 8082
+demo_backend_bind: 127.0.0.1

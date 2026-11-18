@@ -1,0 +1,23 @@
+---
+# Prometheus release from github.com/prometheus/prometheus (checked with 3.16.0)
+prometheus_version: "3.16.0"
+prometheus_arch: amd64
+prometheus_install_dir: /opt
+prometheus_config_dir: /etc/prometheus
+prometheus_data_dir: /var/lib/prometheus
+prometheus_listen_address: "0.0.0.0:9090"
+prometheus_retention_time: 15d
+
+# Values from the post's prometheus.yml
+prometheus_scrape_interval: 15s
+prometheus_evaluation_interval: 15s
+prometheus_alertmanagers:
+  - alertmanager:9093
+
+# HAProxy targets: every host in this inventory group, on the exporter port
+prometheus_haproxy_group: haproxy
+prometheus_haproxy_port: 8405
+prometheus_haproxy_scrape_interval: 10s
+prometheus_haproxy_scrape_timeout: 5s
+# Extra targets ("host:port") on top of the inventory group
+prometheus_haproxy_extra_targets: []

@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: demo_backend
+  namespace: pderuiter
+  author: Patrick de Ruiter
+  description: DEMO ONLY - tiny HTTP servers that stand in for the post's web servers
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+  galaxy_tags:
+    - demo
+
+dependencies: []

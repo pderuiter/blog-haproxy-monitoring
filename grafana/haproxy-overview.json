@@ -1,0 +1,55 @@
+{
+  "title": "HAProxy Overview",
+  "panels": [
+    {
+      "title": "Request Rate",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(haproxy_frontend_http_requests_total[5m])) by (proxy)",
+          "legendFormat": "{{ proxy }}"
+        }
+      ]
+    },
+    {
+      "title": "HTTP Response Codes",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "sum(rate(haproxy_frontend_http_responses_total[5m])) by (code)",
+          "legendFormat": "{{ code }}"
+        }
+      ]
+    },
+    {
+      "title": "Backend Response Time",
+      "type": "graph",
+      "targets": [
+        {
+          "expr": "haproxy_backend_response_time_average_seconds",
+          "legendFormat": "{{ proxy }}"
+        }
+      ]
+    },
+    {
+      "title": "Active Connections",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "sum(haproxy_frontend_current_sessions)"
+        }
+      ]
+    },
+    {
+      "title": "Server Health",
+      "type": "table",
+      "targets": [
+        {
+          "expr": "haproxy_server_status == 1",
+          "format": "table",
+          "instant": true
+        }
+      ]
+    }
+  ]
+}

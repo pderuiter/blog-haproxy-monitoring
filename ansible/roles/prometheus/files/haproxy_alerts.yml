@@ -1,0 +1,111 @@
+groups:
+  - name: haproxy
+    rules:
+      # High error rate
+      - alert: HAProxyHighErrorRate
+        expr: |
+          sum(rate(haproxy_frontend_http_responses_total{code="5xx"}[5m])) by (proxy)
+          /
+          sum(rate(haproxy_frontend_http_responses_total[5m])) by (proxy)
+          > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High 5xx error rate on {{ $labels.proxy }}"
+          description: "Error rate is {{ $value | humanizePercentage }} on frontend {{ $labels.proxy }}"
+
+      # Backend down
+      - alert: HAProxyBackendDown
+        expr: haproxy_backend_active_servers == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HAProxy backend {{ $labels.proxy }} has no active servers"
+          description: "All servers in backend {{ $labels.proxy }} are down"
+
+      # Server down
+      - alert: HAProxyServerDown
+        expr: haproxy_server_status{state="DOWN"} == 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Server {{ $labels.server }} is down"
+          description: "Server {{ $labels.server }} in backend {{ $labels.proxy }} is down"
+
+      # High connection count
+      - alert: HAProxyHighConnections
+        expr: |
+          haproxy_frontend_current_sessions
+          /
+          haproxy_frontend_limit_sessions
+          > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High connection usage on {{ $labels.proxy }}"
+          description: "Frontend {{ $labels.proxy }} is at {{ $value | humanizePercentage }} of max connections"
+
+      # Queue building up
+      - alert: HAProxyQueueNotEmpty
+        expr: haproxy_backend_current_queue > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue building up on {{ $labels.proxy }}"
+          description: "Backend {{ $labels.proxy }} has {{ $value }} requests queued"
+
+      # High response time
+      - alert: HAProxyHighResponseTime
+        expr: haproxy_backend_response_time_average_seconds > 2
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time on {{ $labels.proxy }}"
+          description: "Backend {{ $labels.proxy }} average response time is {{ $value }}s"
+
+      # Health check failures
+      - alert: HAProxyHealthCheckFailures
+        expr: increase(haproxy_server_check_failures_total[10m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Health check failures on {{ $labels.server }}"
+          description: "Server {{ $labels.server }} has {{ $value }} health check failures"
+
+      # Connection errors
+      - alert: HAProxyConnectionErrors
+        expr: rate(haproxy_backend_connection_errors_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Connection errors to {{ $labels.proxy }}"
+          description: "Backend {{ $labels.proxy }} has {{ $value }}/s connection errors"
+
+      # HAProxy instance down
+      - alert: HAProxyDown
+        expr: up{job="haproxy"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HAProxy instance {{ $labels.instance }} is down"
+          description: "HAProxy at {{ $labels.instance }} is not responding"
+
+      # SSL certificate expiry (HAProxy does not export certificate dates;
+      # this uses blackbox_exporter probing the HTTPS frontend)
+      - alert: HAProxySSLCertExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 7 * 24 * 3600
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring soon"
+          description: "Certificate expires in {{ $value | humanizeDuration }}"

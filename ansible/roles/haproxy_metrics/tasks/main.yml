@@ -1,0 +1,50 @@
+---
+- name: Create the certificate directory
+  ansible.builtin.file:
+    path: "{{ haproxy_metrics_cert_dir }}"
+    state: directory
+    owner: root
+    group: haproxy
+    mode: "0750"
+  when: haproxy_metrics_tls
+
+- name: Find certificates for the :443 bind
+  ansible.builtin.find:
+    paths: "{{ haproxy_metrics_cert_dir }}"
+    patterns: "*.pem"
+  register: haproxy_metrics_certs
+  when: haproxy_metrics_tls
+
+- name: Generate a self-signed certificate (only when the directory has none)
+  ansible.builtin.shell:
+    cmd: >-
+      set -e;
+      openssl req -x509 -newkey rsa:2048 -nodes -days 825
+      -subj "/CN={{ haproxy_metrics_self_signed_cn }}"
+      -addext "subjectAltName=DNS:{{ haproxy_metrics_self_signed_cn }}"
+      -keyout /tmp/haproxy-self-signed.key -out /tmp/haproxy-self-signed.crt;
+      cat /tmp/haproxy-self-signed.crt /tmp/haproxy-self-signed.key > self-signed.pem;
+      chmod 0640 self-signed.pem; chgrp haproxy self-signed.pem;
+      rm -f /tmp/haproxy-self-signed.key /tmp/haproxy-self-signed.crt
+    chdir: "{{ haproxy_metrics_cert_dir }}"
+    creates: "{{ haproxy_metrics_cert_dir }}/self-signed.pem"
+  when:
+    - haproxy_metrics_tls
+    - haproxy_metrics_certs.matched == 0
+  notify: Reload haproxy
+
+- name: Write haproxy.cfg with the Prometheus exporter frontend
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: "0644"
+    validate: haproxy -c -f %s
+  notify: Reload haproxy
+
+- name: Enable and start HAProxy
+  ansible.builtin.systemd_service:
+    name: haproxy
+    enabled: true
+    state: started

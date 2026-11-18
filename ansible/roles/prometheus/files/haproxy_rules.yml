@@ -1,0 +1,34 @@
+groups:
+  - name: haproxy_recording
+    rules:
+      # Request rate by frontend
+      - record: haproxy:frontend:request_rate:5m
+        expr: sum(rate(haproxy_frontend_http_requests_total[5m])) by (proxy, instance)
+
+      # Error rate by frontend
+      - record: haproxy:frontend:error_rate:5m
+        expr: |
+          sum(rate(haproxy_frontend_http_responses_total{code="5xx"}[5m])) by (proxy, instance)
+          /
+          sum(rate(haproxy_frontend_http_responses_total[5m])) by (proxy, instance)
+
+      # Backend availability
+      - record: haproxy:backend:availability
+        expr: |
+          sum(haproxy_server_status{state="UP"}) by (proxy, instance)
+          /
+          count(haproxy_server_status{state="UP"}) by (proxy, instance)
+
+      # Session utilization
+      - record: haproxy:frontend:session_utilization
+        expr: |
+          haproxy_frontend_current_sessions
+          /
+          haproxy_frontend_limit_sessions
+
+      # Bytes total rate
+      - record: haproxy:frontend:bytes_total_rate:5m
+        expr: |
+          sum(rate(haproxy_frontend_bytes_in_total[5m])) by (proxy, instance)
+          +
+          sum(rate(haproxy_frontend_bytes_out_total[5m])) by (proxy, instance)

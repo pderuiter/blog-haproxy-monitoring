@@ -1,0 +1,25 @@
+---
+# Port of the "prometheus" frontend that serves /metrics (and a stats page)
+haproxy_metrics_prometheus_port: 8405
+# Port of the human stats page
+haproxy_metrics_stats_port: 8404
+
+# Application frontend. With TLS on, HAProxy also binds :443 with every
+# certificate in haproxy_metrics_cert_dir; a self-signed one is generated when
+# the directory has none, so the configuration is valid out of the box.
+haproxy_metrics_tls: true
+haproxy_metrics_cert_dir: /etc/haproxy/certs
+haproxy_metrics_self_signed_cn: "{{ ansible_facts['fqdn'] }}"
+
+# Backend servers of web_servers, as in the post
+haproxy_metrics_health_check: GET /health
+haproxy_metrics_backend_servers:
+  - name: web1
+    address: 192.168.1.10
+    port: 8080
+  - name: web2
+    address: 192.168.1.11
+    port: 8080
+  - name: web3
+    address: 192.168.1.12
+    port: 8080

@@ -1,0 +1,36 @@
+# {{ ansible_managed }}
+global:
+  scrape_interval: {{ prometheus_scrape_interval }}
+  evaluation_interval: {{ prometheus_evaluation_interval }}
+
+{% if prometheus_alertmanagers | length > 0 %}
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+{% for am in prometheus_alertmanagers %}
+          - {{ am }}
+{% endfor %}
+
+{% endif %}
+rule_files:
+  - "haproxy_alerts.yml"
+  - "haproxy_rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'haproxy'
+    static_configs:
+      - targets:
+{% for host in groups[prometheus_haproxy_group] | default([]) %}
+        - '{{ hostvars[host]['ansible_host'] | default(host) }}:{{ prometheus_haproxy_port }}'
+{% endfor %}
+{% for target in prometheus_haproxy_extra_targets %}
+        - '{{ target }}'
+{% endfor %}
+    metrics_path: /metrics
+    scrape_interval: {{ prometheus_haproxy_scrape_interval }}
+    scrape_timeout: {{ prometheus_haproxy_scrape_timeout }}
